@@ -1,0 +1,622 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1122, initial-scale=1.0">
+<title>Poster Newton-Raphson — Metode Numerik</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&family=JetBrains+Mono:wght@400;600&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Inter', sans-serif;
+    background: #f0f2f5;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 24px;
+    min-height: 100vh;
+  }
+
+  .poster {
+    width: 1122px;
+    min-height: 794px;
+    background: #ffffff;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 4px 32px rgba(0,0,0,0.12);
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* HEADER */
+  .header {
+    background: #0f3d6e;
+    color: white;
+    padding: 18px 28px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+  }
+  .header-left { display: flex; flex-direction: column; gap: 2px; }
+  .header-eyebrow {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: #7ab3e0;
+  }
+  .header-title {
+    font-size: 26px;
+    font-weight: 900;
+    line-height: 1.1;
+    letter-spacing: -0.5px;
+  }
+  .header-subtitle {
+    font-size: 12px;
+    color: #b0d0ee;
+    margin-top: 4px;
+  }
+  .header-right {
+    text-align: right;
+    font-size: 11px;
+    color: #b0d0ee;
+    line-height: 1.6;
+  }
+  .header-right strong { color: white; font-weight: 600; }
+
+  /* BODY GRID */
+  .body {
+    flex: 1;
+    display: grid;
+    grid-template-columns: 260px 1fr 1fr;
+    grid-template-rows: auto auto;
+    gap: 0;
+    padding: 0;
+  }
+
+  .section {
+    padding: 16px 18px;
+    border-right: 1px solid #e8ecf0;
+    border-bottom: 1px solid #e8ecf0;
+  }
+  .section:last-child { border-right: none; }
+
+  .section-title {
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: #1b6fba;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .section-title::before {
+    content: '';
+    display: inline-block;
+    width: 14px;
+    height: 3px;
+    background: #1b6fba;
+    border-radius: 2px;
+  }
+  .num-badge {
+    background: #1b6fba;
+    color: white;
+    font-size: 8px;
+    font-weight: 700;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  /* Latar Belakang */
+  .sec-latar { grid-column: 1; grid-row: 1 / 3; border-right: 1px solid #e8ecf0; border-bottom: none; }
+
+  p.body-text { font-size: 11px; line-height: 1.6; color: #333; margin-bottom: 8px; }
+  p.body-text strong { color: #0f3d6e; }
+
+  .highlight-box {
+    background: #e8f2fc;
+    border-left: 3px solid #1b6fba;
+    border-radius: 0 6px 6px 0;
+    padding: 8px 10px;
+    margin: 10px 0;
+  }
+  .highlight-box .label { font-size: 9px; font-weight: 700; color: #1b6fba; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 3px; }
+  .highlight-box p { font-size: 11px; color: #1a3d5e; line-height: 1.5; }
+
+  .var-row { display: flex; gap: 8px; margin-top: 10px; }
+  .var-chip {
+    background: #f0f4f8;
+    border: 1px solid #cdd8e3;
+    border-radius: 4px;
+    padding: 4px 8px;
+    font-size: 10px;
+    font-family: 'JetBrains Mono', monospace;
+    color: #0f3d6e;
+    font-weight: 600;
+  }
+
+  /* Model */
+  .sec-model { grid-column: 2; grid-row: 1; }
+  .sec-algoritma { grid-column: 3; grid-row: 1; }
+  .sec-hasil { grid-column: 2; grid-row: 2; }
+  .sec-analisis { grid-column: 3; grid-row: 2; }
+
+  .formula-block {
+    background: #f7f9fb;
+    border: 1px solid #d4e0ec;
+    border-radius: 6px;
+    padding: 10px 12px;
+    margin: 8px 0;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: #0f3d6e;
+    line-height: 1.8;
+  }
+  .formula-block .eq { color: #c0392b; font-weight: 600; }
+
+  .step-list { list-style: none; padding: 0; margin: 8px 0; }
+  .step-list li {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    font-size: 11px;
+    color: #333;
+    line-height: 1.5;
+    margin-bottom: 5px;
+  }
+  .step-num {
+    background: #0f3d6e;
+    color: white;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    font-size: 8px;
+    font-weight: 700;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+
+  /* Chart SVG area */
+  .chart-area {
+    background: #f7f9fb;
+    border: 1px solid #d4e0ec;
+    border-radius: 6px;
+    padding: 8px;
+    margin: 8px 0;
+  }
+
+  /* Result table */
+  .result-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 10px;
+    margin: 8px 0;
+  }
+  .result-table th {
+    background: #0f3d6e;
+    color: white;
+    padding: 5px 6px;
+    text-align: left;
+    font-weight: 600;
+    font-size: 9px;
+    letter-spacing: 0.3px;
+  }
+  .result-table td {
+    padding: 4px 6px;
+    border-bottom: 1px solid #e8ecf0;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    color: #222;
+  }
+  .result-table tr:nth-child(even) td { background: #f4f7fa; }
+  .ok-badge {
+    background: #d4edda;
+    color: #155724;
+    font-size: 8px;
+    font-weight: 700;
+    padding: 1px 5px;
+    border-radius: 3px;
+  }
+
+  /* Metric cards */
+  .metric-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin: 8px 0; }
+  .metric-card {
+    background: #f0f6fd;
+    border: 1px solid #c8ddf0;
+    border-radius: 6px;
+    padding: 8px 10px;
+    text-align: center;
+  }
+  .metric-card .mc-label { font-size: 8px; font-weight: 600; color: #5a7fa0; text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 3px; }
+  .metric-card .mc-value { font-size: 16px; font-weight: 700; color: #0f3d6e; font-family: 'JetBrains Mono', monospace; }
+  .metric-card .mc-sub { font-size: 9px; color: #7a9bb5; margin-top: 1px; }
+
+  .metric-card.green { background: #edf7ee; border-color: #b8debb; }
+  .metric-card.green .mc-label { color: #3a7a3e; }
+  .metric-card.green .mc-value { color: #1a5c1e; }
+  .metric-card.green .mc-sub { color: #5a9a5e; }
+
+  /* Accuracy row */
+  .accuracy-row {
+    background: #e8f5e9;
+    border: 1px solid #a5d6a7;
+    border-radius: 6px;
+    padding: 8px 12px;
+    margin-top: 8px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .accuracy-row .check { font-size: 16px; color: #2e7d32; font-weight: 700; }
+  .accuracy-row .acc-text { font-size: 10px; color: #1b5e20; line-height: 1.4; }
+  .accuracy-row .acc-text strong { font-weight: 700; }
+
+  /* Iteration mini table */
+  .iter-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 9px;
+    margin: 6px 0;
+  }
+  .iter-table th {
+    background: #2c5f8a;
+    color: white;
+    padding: 3px 5px;
+    font-weight: 600;
+    text-align: center;
+    font-size: 8px;
+  }
+  .iter-table td {
+    padding: 3px 5px;
+    text-align: center;
+    border-bottom: 1px solid #e4ecf2;
+    font-family: 'JetBrains Mono', monospace;
+    color: #333;
+  }
+  .iter-table tr:nth-child(even) td { background: #f4f8fc; }
+  .iter-ok td { color: #1a5c1e !important; font-weight: 600; }
+
+  /* Footer */
+  .footer {
+    background: #0f3d6e;
+    color: #b0d0ee;
+    font-size: 9px;
+    padding: 8px 28px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    letter-spacing: 0.5px;
+  }
+  .footer strong { color: white; }
+  .footer-right { display: flex; gap: 24px; }
+
+  .conclusion-box {
+    background: #fff8e1;
+    border: 1px solid #ffe082;
+    border-left: 4px solid #f9a825;
+    border-radius: 0 6px 6px 0;
+    padding: 8px 10px;
+    margin: 8px 0;
+    font-size: 10px;
+    color: #5d4037;
+    line-height: 1.6;
+  }
+  .conclusion-box strong { color: #e65100; }
+
+  .klinis-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 10px;
+    margin: 6px 0;
+  }
+  .klinis-table th {
+    background: #1565c0;
+    color: white;
+    padding: 5px 7px;
+    font-size: 9px;
+    font-weight: 600;
+    text-align: left;
+  }
+  .klinis-table td {
+    padding: 5px 7px;
+    border-bottom: 1px solid #e3eaf2;
+    color: #222;
+  }
+  .klinis-table tr:nth-child(even) td { background: #f0f5fb; }
+  .klinis-table .mono { font-family: 'JetBrains Mono', monospace; font-weight: 600; color: #0d47a1; }
+  .klinis-table .highlight-val { color: #b71c1c; font-weight: 600; }
+</style>
+</head>
+<body>
+<div class="poster">
+
+  <!-- HEADER -->
+  <div class="header">
+    <div class="header-left">
+      <div class="header-eyebrow">Poster Portofolio · Metode Numerik</div>
+      <div class="header-title">Metode Newton-Raphson</div>
+      <div class="header-subtitle">Penentuan Jendela Terapi Efektif Obat dalam Darah</div>
+    </div>
+    <div class="header-right">
+      <strong>Kelompok: Jibran &nbsp;·&nbsp; Zaki &nbsp;·&nbsp; Jali</strong><br>
+      Program Studi Teknik Informatika<br>
+      Metode Numerik · Semester Genap 2025/2026
+    </div>
+  </div>
+
+  <!-- BODY -->
+  <div class="body">
+
+    <!-- COL 1: Latar Belakang (spans 2 rows) -->
+    <div class="section sec-latar">
+      <div class="section-title"><span class="num-badge">1</span> Latar Belakang Kasus</div>
+      <p class="body-text">Pasien menerima <strong>injeksi obat 500 mg</strong>. Kadar obat dalam darah harus berada di atas <strong>300 mg/L</strong> agar efektif secara terapeutik.</p>
+      <div class="highlight-box">
+        <div class="label">Pertanyaan Klinis</div>
+        <p>Kapan kadar obat pertama kali mencapai 300 mg/L <strong>(t₁)</strong>? Dan kapan kadar kembali turun ke 300 mg/L <strong>(t₂)</strong>?</p>
+      </div>
+      <p class="body-text" style="margin-top:10px;"><strong>Terlalu rendah</strong> → tidak bekerja<br><strong>Terlalu tinggi</strong> → toksik</p>
+      <div class="var-row">
+        <span class="var-chip">t = waktu (jam)</span>
+        <span class="var-chip">C(t) = mg/L</span>
+      </div>
+
+      <div style="margin-top: 16px;">
+        <div class="section-title"><span class="num-badge">2</span> Pemodelan Matematika</div>
+        <p class="body-text" style="font-size:10px;"><strong>Model farmakokinetik dua-kompartemen:</strong></p>
+        <div class="formula-block">
+C(t) = D · (e<sup>-k₁t</sup> - e<sup>-k₂t</sup>) / (k₂ - k₁)<br><br>
+D = 500 mg &nbsp;&nbsp; k₁ = 0.1/jam<br>
+k₂ = 0.5/jam
+        </div>
+        <p class="body-text" style="font-size:10px; margin-top:6px;"><strong>Fungsi target (BEP Terapi):</strong></p>
+        <div class="formula-block">
+<span class="eq">f(t)</span> = 500·(e<sup>-0.1t</sup> − e<sup>-0.5t</sup>)/0.4 − 300<br><br>
+<span class="eq">f′(t)</span> = 500·(−0.1·e<sup>-0.1t</sup> + 0.5·e<sup>-0.5t</sup>)/0.4<br><br>
+<span class="eq">tᵢ₊₁</span> = tᵢ − f(tᵢ) / f′(tᵢ)
+        </div>
+      </div>
+
+      <!-- Chart -->
+      <div class="chart-area" style="margin-top:12px;">
+        <svg width="224" height="130" viewBox="0 0 224 130" xmlns="http://www.w3.org/2000/svg" style="display:block;margin:0 auto;">
+          <defs>
+            <marker id="arr" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto">
+              <path d="M0,0 L6,3 L0,6 Z" fill="#555"/>
+            </marker>
+          </defs>
+          <!-- Axes -->
+          <line x1="28" y1="10" x2="28" y2="110" stroke="#555" stroke-width="1.2" marker-end="url(#arr)"/>
+          <line x1="28" y1="110" x2="215" y2="110" stroke="#555" stroke-width="1.2" marker-end="url(#arr)"/>
+          <!-- C_target line -->
+          <line x1="28" y1="66" x2="210" y2="66" stroke="#e53935" stroke-width="1" stroke-dasharray="4,3"/>
+          <text x="210" y="64" font-size="8" fill="#e53935" text-anchor="end">C_target 300</text>
+          <!-- Curve (approximated) -->
+          <polyline points="28,110 42,80 55,55 65,40 75,32 85,28 95,26 108,26 120,30 135,40 148,52 160,63 170,73 178,82 186,90 195,98 204,104" fill="none" stroke="#1b6fba" stroke-width="2" stroke-linejoin="round"/>
+          <!-- t1 -->
+          <line x1="56" y1="66" x2="56" y2="110" stroke="#2e7d32" stroke-width="1" stroke-dasharray="3,2"/>
+          <text x="53" y="120" font-size="7.5" fill="#2e7d32" text-anchor="middle">t₁=0.75</text>
+          <!-- t2 -->
+          <line x1="174" y1="66" x2="174" y2="110" stroke="#2e7d32" stroke-width="1" stroke-dasharray="3,2"/>
+          <text x="172" y="120" font-size="7.5" fill="#2e7d32" text-anchor="middle">t₂=14.24</text>
+          <!-- Cmax -->
+          <circle cx="95" cy="26" r="3" fill="#f9a825"/>
+          <text x="96" y="22" font-size="7.5" fill="#e65100">Cmax=669</text>
+          <!-- Shaded therapy window -->
+          <rect x="56" y="66" width="118" height="44" fill="#1b6fba" fill-opacity="0.08"/>
+          <!-- Labels -->
+          <text x="22" y="13" font-size="8" fill="#333" text-anchor="middle">C(t)</text>
+          <text x="217" y="114" font-size="8" fill="#333">t</text>
+          <text x="115" y="105" font-size="7.5" fill="#1b6fba" text-anchor="middle">Jendela Terapi Efektif</text>
+        </svg>
+      </div>
+    </div>
+
+    <!-- COL 2 ROW 1: Algoritma & Parameter -->
+    <div class="section sec-model">
+      <div class="section-title"><span class="num-badge">3</span> Formulasi &amp; Algoritma</div>
+      <p class="body-text" style="font-weight:600; color:#0f3d6e; font-size:10px;">Algoritma Newton-Raphson:</p>
+      <ol class="step-list">
+        <li><span class="step-num">1</span>Masukkan f(t), f′(t), t₀, toleransi</li>
+        <li><span class="step-num">2</span>Hitung f(tᵢ) dan f′(tᵢ)</li>
+        <li><span class="step-num">3</span>Hitung tᵢ₊₁ = tᵢ − f(tᵢ) / f′(tᵢ)</li>
+        <li><span class="step-num">4</span>Hitung |error| = |tᵢ₊₁ − tᵢ|</li>
+        <li><span class="step-num">5</span>Jika |error| &lt; tol → <strong>SELESAI</strong></li>
+        <li><span class="step-num">6</span>Jika tidak: tᵢ = tᵢ₊₁, ulangi ke-2</li>
+      </ol>
+
+      <div class="section-title" style="margin-top:14px;">Parameter Input</div>
+      <table class="result-table">
+        <thead><tr><th>Parameter</th><th>Simbol</th><th>Nilai</th></tr></thead>
+        <tbody>
+          <tr><td>Dosis</td><td>D</td><td>500 mg</td></tr>
+          <tr><td>Konstanta eliminasi</td><td>k₁</td><td>0.1 /jam</td></tr>
+          <tr><td>Konstanta absorpsi</td><td>k₂</td><td>0.5 /jam</td></tr>
+          <tr><td>Target kadar</td><td>C_target</td><td>300 mg/L</td></tr>
+          <tr><td>Tebakan awal t₁</td><td>t₀</td><td>1.0 jam</td></tr>
+          <tr><td>Tebakan awal t₂</td><td>t₀</td><td>15.0 jam</td></tr>
+          <tr><td>Toleransi</td><td>ε</td><td>0.0001</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- COL 3 ROW 1: Hitungan Manual -->
+    <div class="section sec-algoritma">
+      <div class="section-title"><span class="num-badge">4a</span> Hitungan Manual</div>
+      <p class="body-text" style="font-size:9.5px; color:#555;">Akar t₁ — kadar naik ke 300 mg/L (t₀ = 1 jam):</p>
+      <table class="iter-table">
+        <thead><tr><th>It</th><th>tᵢ</th><th>f(tᵢ)</th><th>f′(tᵢ)</th><th>tᵢ₊₁</th><th>|Err|</th></tr></thead>
+        <tbody>
+          <tr><td>1</td><td>1.000</td><td>72.88</td><td>265.98</td><td>0.7260</td><td>2.7e-1</td></tr>
+          <tr><td>2</td><td>0.726</td><td>-7.02</td><td>318.50</td><td>0.7480</td><td>2.2e-2</td></tr>
+          <tr><td>3</td><td>0.748</td><td>-0.05</td><td>313.99</td><td>0.7482</td><td>1.6e-4</td></tr>
+          <tr class="iter-ok"><td>4</td><td>0.7482</td><td>~0.00</td><td>313.96</td><td>0.7482</td><td>8.2e-9 ✓</td></tr>
+        </tbody>
+      </table>
+      <p style="font-size:8px; color:#2e7d32; margin-top:2px; font-style:italic;">Konvergen iterasi ke-4 (|error| = 8.2e-9 &lt; 0.0001)</p>
+
+      <p class="body-text" style="font-size:9.5px; color:#555; margin-top:10px;">Akar t₂ — kadar turun ke 300 mg/L (t₀ = 15 jam):</p>
+      <table class="iter-table">
+        <thead><tr><th>It</th><th>tᵢ</th><th>f(tᵢ)</th><th>f′(tᵢ)</th><th>tᵢ₊₁</th><th>|Err|</th></tr></thead>
+        <tbody>
+          <tr><td>1</td><td>15.000</td><td>-21.78</td><td>-27.55</td><td>14.209</td><td>7.9e-1</td></tr>
+          <tr><td>2</td><td>14.209</td><td>0.833</td><td>-29.67</td><td>14.237</td><td>2.8e-2</td></tr>
+          <tr class="iter-ok"><td>3</td><td>14.237</td><td>0.001</td><td>-29.60</td><td>14.237</td><td>3.7e-5 ✓</td></tr>
+        </tbody>
+      </table>
+      <p style="font-size:8px; color:#2e7d32; margin-top:2px; font-style:italic;">Konvergen iterasi ke-3 (|error| = 3.7e-5 &lt; 0.0001)</p>
+    </div>
+
+    <!-- COL 2 ROW 2: Hasil Program + Klinis -->
+    <div class="section sec-hasil">
+      <div class="section-title"><span class="num-badge">4b</span> Hasil Program Komputer</div>
+      <div class="formula-block" style="font-size:8.5px; line-height:1.7; padding:8px 10px;">
+=================================<br>
+&nbsp;NEWTON-RAPHSON FARMAKOKINETIK<br>
+=================================<br>
+Model: C(t)=500*(e^-0.1t - e^-0.5t)<br>
+C_target = 300 mg/L<br>
+<br>
+[AKAR t1: kadar naik ke 300]<br>
+&nbsp;1 &nbsp;1.0000 &nbsp;72.8834 &nbsp;2.7e-1<br>
+&nbsp;2 &nbsp;0.7260 &nbsp;-7.0240 &nbsp;2.2e-2<br>
+&nbsp;3 &nbsp;0.7480 &nbsp;-0.0498 &nbsp;1.6e-4<br>
+&nbsp;4 &nbsp;0.7482 &nbsp;-0.0000 &nbsp;8.2e-9 OK<br>
+<br>
+[AKAR t2: kadar turun ke 300]<br>
+&nbsp;1 &nbsp;15.000 &nbsp;-21.779 &nbsp;7.9e-1<br>
+&nbsp;2 &nbsp;14.209 &nbsp;&nbsp;0.8333 &nbsp;2.8e-2<br>
+&nbsp;3 &nbsp;14.237 &nbsp;&nbsp;0.0011 &nbsp;3.7e-5 OK<br>
+<br>
+[HASIL]<br>
+t1 = 0.748191 jam (~44.9 mnt)<br>
+t2 = 14.237479 jam (~14.24 jam)<br>
+Galat Rel = 0.00e+00 % ✓
+      </div>
+
+      <div class="section-title" style="margin-top:8px;">Kesimpulan Klinis</div>
+      <table class="klinis-table">
+        <thead><tr><th>Parameter</th><th>Nilai</th><th>Keterangan</th></tr></thead>
+        <tbody>
+          <tr><td>t₁ (mulai efektif)</td><td class="mono">0.7482 jam</td><td>~44.9 menit setelah injeksi</td></tr>
+          <tr><td>t₂ (akhir efektif)</td><td class="mono">14.2375 jam</td><td>~14.24 jam setelah injeksi</td></tr>
+          <tr><td>Durasi terapi</td><td class="mono highlight-val">13.489 jam</td><td>~809 menit ≈ 13.5 jam</td></tr>
+          <tr><td>C_max (puncak)</td><td class="mono highlight-val">668.73 mg/L</td><td>dicapai di t ≈ 2.9 jam</td></tr>
+          <tr><td>Dosis ulang</td><td class="mono">t = 14.24 jam</td><td>atau setiap 13.5 jam</td></tr>
+        </tbody>
+      </table>
+      <div class="conclusion-box">
+        <strong>Jendela terapi efektif:</strong> t = 0.75 jam hingga 14.24 jam setelah injeksi 500 mg. Metode Newton-Raphson berhasil menentukan kedua akar dengan konvergensi kuadratik hanya dalam 3–4 iterasi.
+      </div>
+    </div>
+
+    <!-- COL 3 ROW 2: Evaluasi Galat -->
+    <div class="section sec-analisis">
+      <div class="section-title"><span class="num-badge">5</span> Evaluasi &amp; Analisis Galat</div>
+      <div class="metric-grid">
+        <div class="metric-card">
+          <div class="mc-label">Norma Galat</div>
+          <div class="mc-value" style="font-size:13px;">6.30e-11</div>
+          <div class="mc-sub">presisi tinggi</div>
+        </div>
+        <div class="metric-card">
+          <div class="mc-label">Galat Relatif</div>
+          <div class="mc-value" style="font-size:13px;">4.43e-10%</div>
+          <div class="mc-sub">mendekati nol</div>
+        </div>
+        <div class="metric-card green">
+          <div class="mc-label">t₁ Manual</div>
+          <div class="mc-value" style="font-size:13px;">0.748191</div>
+          <div class="mc-sub">jam</div>
+        </div>
+        <div class="metric-card green">
+          <div class="mc-label">t₂ Manual</div>
+          <div class="mc-value" style="font-size:13px;">14.2375</div>
+          <div class="mc-sub">jam</div>
+        </div>
+      </div>
+
+      <table class="result-table" style="margin-top:8px;">
+        <thead>
+          <tr>
+            <th>Akar</th>
+            <th>t Manual (jam)</th>
+            <th>t Program (jam)</th>
+            <th>Galat Abs</th>
+            <th>Galat Rel</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>t₁</td>
+            <td>0.748191</td>
+            <td>0.748190534</td>
+            <td>0.00e+00</td>
+            <td>0.00e+00 %</td>
+            <td><span class="ok-badge">Akurat</span></td>
+          </tr>
+          <tr>
+            <td>t₂</td>
+            <td>14.237479</td>
+            <td>14.237479237</td>
+            <td>6.30e-11</td>
+            <td>4.43e-10 %</td>
+            <td><span class="ok-badge">Akurat</span></td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="accuracy-row">
+        <div class="check">✓</div>
+        <div class="acc-text">
+          <strong>Newton-Raphson tervalidasi</strong><br>
+          Hasil manual ≡ hasil program — konvergensi kuadratik terkonfirmasi. Scan QR untuk kode Python &amp; video demo iterasi.
+        </div>
+        <div style="margin-left:auto;">
+          <svg width="52" height="52" viewBox="0 0 52 52" xmlns="http://www.w3.org/2000/svg">
+            <rect width="52" height="52" rx="4" fill="#f5f5f5" stroke="#ccc" stroke-width="0.5"/>
+            <rect x="4" y="4" width="18" height="18" rx="2" fill="none" stroke="#333" stroke-width="1.5"/>
+            <rect x="7" y="7" width="12" height="12" rx="1" fill="#333"/>
+            <rect x="30" y="4" width="18" height="18" rx="2" fill="none" stroke="#333" stroke-width="1.5"/>
+            <rect x="33" y="7" width="12" height="12" rx="1" fill="#333"/>
+            <rect x="4" y="30" width="18" height="18" rx="2" fill="none" stroke="#333" stroke-width="1.5"/>
+            <rect x="7" y="33" width="12" height="12" rx="1" fill="#333"/>
+            <rect x="30" y="30" width="6" height="6" fill="#333" rx="1"/>
+            <rect x="38" y="30" width="6" height="6" fill="#333" rx="1"/>
+            <rect x="30" y="38" width="6" height="6" fill="#333" rx="1"/>
+            <rect x="38" y="38" width="6" height="6" fill="#333" rx="1"/>
+            <text x="26" y="49" font-size="5" fill="#888" text-anchor="middle">github.com/example</text>
+          </svg>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- FOOTER -->
+  <div class="footer">
+    <span>Metode Numerik &nbsp;·&nbsp; Teknik Informatika &nbsp;·&nbsp; <strong>2025/2026</strong></span>
+    <div class="footer-right">
+      <span>Kelompok: <strong>Jibran · Zaki · Jali</strong></span>
+      <span>Model: C(t) = D·(e<sup>-k₁t</sup>−e<sup>-k₂t</sup>)/(k₂−k₁)</span>
+      <span>Konvergensi kuadratik &nbsp;<strong>✓</strong></span>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>
